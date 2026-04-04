@@ -1,0 +1,128 @@
+AWSTemplateFormatVersion: '2010-09-09'
+Transform: AWS::Serverless-2016-10-31
+Description: >
+  Prime Checker Lambda Function
+
+  SAM Template for deploying a Lambda function that checks if a number is prime,
+  exposed via API Gateway REST API endpoint.
+
+# Global configuration for all functions and APIs
+Globals:
+  Function:
+    Timeout: 10
+    MemorySize: 128
+    Runtime: python3.11
+    Architectures:
+      - x86_64
+    Environment:
+      Variables:
+        LOG_LEVEL: INFO
+  Api:
+    Cors:
+      AllowMethods: "'POST, OPTIONS'"
+      AllowHeaders: "'Content-Type,X-Amz-Date,Authorization,X-Api-Key,X-Amz-Security-Token'"
+      AllowOrigin: "'*'"
+
+# Parameters for environment-specific configurations
+Parameters:
+  Environment:
+    Type: String
+    Default: dev
+    AllowedValues:
+      - dev
+      - staging
+      - prod
+    Description: Environment name for the deployment
+
+  LogRetentionDays:
+    Type: Number
+    Default: 7
+    AllowedValues: [1, 3, 5, 7, 14, 30, 60, 90, 120, 150, 180, 365, 400, 545, 731, 1827, 3653]
+    Description: Number of days to retain CloudWatch logs
+
+Resources:
+  # Lambda Function
+  PrimeCheckerFunction:
+    Type: AWS::Serverless::Function
+    Properties:
+      FunctionName: !Sub prime-checker-${Environment}
+      Description: Lambda function to check if a number is prime
+      CodeUri: ../
+      Handler: CICD.lambda_handler.lambda_handler
+      Runtime: python3.11
+      MemorySize: 128
+      Timeout: 10
+      Architectures:
+        - x86_64
+      Environment:
+        Variables:
+          ENVIRONMENT: !Ref Environment
+          LOG_LEVEL: INFO
+      Events:
+        PrimeApi:
+          Type: Api
+          Properties:
+            Path: /prime
+            Method: POST
+            RestApiId: !Ref PrimeCheckerApi
+      Tags:
+        Environment: !Ref Environment
+        Application: PrimeChecker
+        ManagedBy: SAM
+
+  # API Gateway REST API
+  PrimeCheckerApi:
+    Type: AWS::Serverless::Api
+    Properties:
+      Name: !Sub prime-checker-api-${Environment}
+      StageName: Prod
+      Description: API Gateway for Prime Checker Lambda function
+      Cors:
+        AllowMethods: "'POST, OPTIONS'"
+        AllowHeaders: "'Content-Type,X-Amz-Date,Authorization,X-Api-Key,X-Amz-Security-Token'"
+        AllowOrigin: "'*'"
+      Tags:
+        Environment: !Ref Environment
+        Application: PrimeChecker
+
+  # CloudWatch Log Group with retention policy
+  PrimeCheckerLogGroup:
+    Type: AWS::Logs::LogGroup
+    Properties:
+      LogGroupName: !Sub /aws/lambda/prime-checker-${Environment}
+      RetentionInDays: !Ref LogRetentionDays
+
+  # IAM Role for Lambda execution (automatically created by SAM, but we can customize if needed)
+  # The default role created by SAM includes:
+  # - AWSLambdaBasicExecutionRole (CloudWatch Logs permissions)
+  # This is sufficient for our use case
+
+# Outputs
+Outputs:
+  PrimeCheckerApi:
+    Description: "API Gateway endpoint URL for Prime Checker function"
+    Value: !Sub "https://${PrimeCheckerApi}.execute-api.${AWS::Region}.amazonaws.com/Prod/prime"
+    Export:
+      Name: !Sub ${AWS::StackName}-ApiEndpoint
+
+  PrimeCheckerFunction:
+    Description: "Prime Checker Lambda Function ARN"
+    Value: !GetAtt PrimeCheckerFunction.Arn
+    Export:
+      Name: !Sub ${AWS::StackName}-FunctionArn
+
+  PrimeCheckerFunctionName:
+    Description: "Prime Checker Lambda Function Name"
+    Value: !Ref PrimeCheckerFunction
+    Export:
+      Name: !Sub ${AWS::StackName}-FunctionName
+
+  PrimeCheckerApiId:
+    Description: "API Gateway ID"
+    Value: !Ref PrimeCheckerApi
+    Export:
+      Name: !Sub ${AWS::StackName}-ApiId
+
+  Environment:
+    Description: "Deployment environment"
+    Value: !Ref Environment

@@ -96,5 +96,57 @@ class TestPrimeChecker(unittest.TestCase):
                 with self.assertRaises(TypeError):
                     is_prime(invalid)
 
+    def test_large_number_limit(self):
+        """Test that extremely large numbers raise ValueError"""
+        large_numbers = [10**12 + 1, 10**15, 2**64]
+        for large_num in large_numbers:
+            with self.subTest(large_num=large_num):
+                with self.assertRaises(ValueError):
+                    is_prime(large_num)
+
+    def test_boundary_values(self):
+        """Test boundary values around the large number limit"""
+        self.assertFalse(is_prime(10**12 - 1))  # 999999999999 is composite
+        with self.assertRaises(ValueError):
+            is_prime(10**12 + 1)  # Should raise ValueError
+
+    def test_mersenne_primes(self):
+        """Test known Mersenne primes (2^p - 1)"""
+        mersenne_primes = [3, 7, 31, 127, 8191]  # 2^2-1, 2^3-1, 2^5-1, 2^7-1, 2^13-1
+        for prime in mersenne_primes:
+            with self.subTest(prime=prime):
+                self.assertTrue(is_prime(prime))
+
+    def test_carmichael_numbers(self):
+        """Test Carmichael numbers (composite numbers that satisfy Fermat's test)"""
+        carmichael_numbers = [561, 1105, 1729, 2465, 2821]
+        for carmichael in carmichael_numbers:
+            with self.subTest(carmichael=carmichael):
+                self.assertFalse(is_prime(carmichael))
+
+    def test_twin_primes(self):
+        """Test twin prime pairs (primes that differ by 2)"""
+        twin_prime_pairs = [(3, 5), (5, 7), (11, 13), (17, 19), (29, 31), (41, 43)]
+        for prime1, prime2 in twin_prime_pairs:
+            with self.subTest(twin_pair=(prime1, prime2)):
+                self.assertTrue(is_prime(prime1))
+                self.assertTrue(is_prime(prime2))
+                self.assertEqual(prime2 - prime1, 2)
+
+    def test_optimization_edge_cases(self):
+        """Test edge cases for the 6k±1 optimization"""
+        # Test numbers of the form 6k+1 and 6k-1
+        test_cases = [
+            (5, True),   # 6*1-1
+            (7, True),   # 6*1+1
+            (11, True),  # 6*2-1
+            (13, True),  # 6*2+1
+            (25, False), # 6*4+1 but composite (5^2)
+            (35, False), # 6*6-1 but composite (5*7)
+        ]
+        for number, expected in test_cases:
+            with self.subTest(number=number):
+                self.assertEqual(is_prime(number), expected)
+
 if __name__ == '__main__':
     unittest.main()

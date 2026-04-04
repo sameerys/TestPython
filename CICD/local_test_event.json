@@ -1,0 +1,28 @@
+{
+  "httpMethod": "POST",
+  "path": "/prime",
+  "headers": {
+    "Content-Type": "application/json",
+    "User-Agent": "curl/7.79.1",
+    "Accept": "*/*"
+  },
+  "queryStringParameters": null,
+  "pathParameters": null,
+  "body": "{\"number\": 17}",
+  "isBase64Encoded": false,
+  "requestContext": {
+    "accountId": "123456789012",
+    "apiId": "abcdef123",
+    "protocol": "HTTP/1.1",
+    "httpMethod": "POST",
+    "path": "/Prod/prime",
+    "stage": "Prod",
+    "requestId": "test-request-id",
+    "requestTime": "01/Jan/2026:00:00:00 +0000",
+    "requestTimeEpoch": 1735689600000,
+    "identity": {
+      "sourceIp": "127.0.0.1",
+      "userAgent": "curl/7.79.1"
+    }
+  }
+}

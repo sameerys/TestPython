@@ -1,0 +1,11 @@
+# Production dependencies for Lambda function
+# The prime_checker module uses only Python standard library,
+# so no external dependencies are required.
+
+# boto3 and botocore are already available in the Lambda runtime environment
+# boto3>=1.26.0  # Uncomment if you need specific version
+
+# Add any future dependencies here
+# Example:
+# requests==2.31.0
+# python-dateutil==2.8.2

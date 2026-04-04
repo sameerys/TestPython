@@ -1,0 +1,56 @@
+version = 0.1
+
+[default]
+[default.deploy]
+[default.deploy.parameters]
+stack_name = "prime-checker-dev"
+s3_prefix = "prime-checker-dev"
+region = "us-east-1"
+confirm_changeset = false
+capabilities = "CAPABILITY_IAM"
+parameter_overrides = "Environment=dev LogRetentionDays=7"
+image_repositories = []
+
+[default.build]
+[default.build.parameters]
+cached = true
+parallel = true
+
+[default.validate]
+[default.validate.parameters]
+lint = true
+
+[default.sync]
+[default.sync.parameters]
+watch = true
+
+[staging]
+[staging.deploy]
+[staging.deploy.parameters]
+stack_name = "prime-checker-staging"
+s3_prefix = "prime-checker-staging"
+region = "us-east-1"
+confirm_changeset = false
+capabilities = "CAPABILITY_IAM"
+parameter_overrides = "Environment=staging LogRetentionDays=14"
+image_repositories = []
+
+[production]
+[production.deploy]
+[production.deploy.parameters]
+stack_name = "prime-checker-prod"
+s3_prefix = "prime-checker-prod"
+region = "us-east-1"
+confirm_changeset = true
+capabilities = "CAPABILITY_IAM"
+parameter_overrides = "Environment=prod LogRetentionDays=30"
+image_repositories = []
+
+# Note: You need to configure the S3 bucket for deployment artifacts
+# Either:
+# 1. Add 's3_bucket = "your-bucket-name"' to each environment's parameters above
+# 2. Or use --guided flag on first deployment to set it interactively
+# 3. Or pass it via --s3-bucket flag in the deploy command
+#
+# Example:
+# s3_bucket = "prime-checker-sam-artifacts"
