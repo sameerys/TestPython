@@ -1,6 +1,8 @@
 import json
 import logging
-from .prime_checker import is_prime
+import sys
+from pathlib import Path
+from src.prime_checker import is_prime
 
 # Configure logging
 logger = logging.getLogger()
