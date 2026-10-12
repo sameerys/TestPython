@@ -1,6 +1,6 @@
 import json
 import logging
-from prime_checker import is_prime
+from .prime_checker import is_prime
 
 # Configure logging
 logger = logging.getLogger()
